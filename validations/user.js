@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-module.exports = function (body, res) {
+module.exports = function (body) {
   const schema = Joi.object({
     name: Joi.string()
       .min(3)
@@ -84,9 +84,9 @@ module.exports = function (body, res) {
       let path = err.path[0];
       errors[path] = err.message;
     });
-
-    res.status(400).json(errors);
-    return;
   }
-  return 0;
+  return {
+    errors,
+    isValid: Object.keys(errors) < 1,
+  };
 };

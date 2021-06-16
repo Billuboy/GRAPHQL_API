@@ -1,12 +1,16 @@
 const Joi = require('joi');
 
-module.exports = function (body, res) {
-  const result = Joi.objectId().validate(body);
+module.exports = function (id) {
+  const result = Joi.objectId().validate(id);
+
+  const errors = {};
 
   if (result.error) {
-    res.status(400).json({ objectId: 'Invalid objectID' });
-    return;
+    errors.objectId = 'Invalid ObjectId';
   }
 
-  return 0;
+  return {
+    errors,
+    isValid: Object.keys(errors).length < 1,
+  };
 };

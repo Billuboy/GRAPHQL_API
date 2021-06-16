@@ -4,10 +4,9 @@ const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
 const app = express();
 
-require('./startup/errorHandler')();
+//Initializing all resources
+require('./startup/middlewareInit')(app);
 require('./startup/db')();
-require('./startup/passport')(app);
-require('./startup/routes')(app);
+require('./startup/apolloServer')(app);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
+// To run this api in your nodejs environment, initialize secret key and dbURI in keys/keys/dev_keys.js

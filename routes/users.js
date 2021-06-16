@@ -16,8 +16,9 @@ const mailSender = require('../config/verification/emailSender');
 //@access  private
 router.get(
   '/:id',
-  passport.authenticate('jwt', { session: false }),
+  () => console.log(passport.authenticate('jwt', { session: false })),
   async (req, res) => {
+    conosle.log(passport.authenticate('jwt', { session: false }));
     const result = validateObjectId(req.params.id, res);
     if (result === undefined) return;
 

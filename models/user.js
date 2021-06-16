@@ -19,7 +19,6 @@ const Schema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  pin: String,
   date: {
     type: Date,
     default: Date.now,
@@ -37,7 +36,7 @@ Schema.methods.getToken = function () {
       expiresIn: 3600,
     }
   );
-  return token;
+  return `Bearer ${token}`;
 };
 
 Schema.methods.getRememberToken = function () {
@@ -48,7 +47,7 @@ Schema.methods.getRememberToken = function () {
     },
     secretKey
   );
-  return token;
+  return `Bearer ${token}`;
 };
 
 const User = mongoose.model('users', Schema);

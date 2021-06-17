@@ -11,7 +11,7 @@ const Schema = new mongoose.Schema({
         type: String,
         requried: true,
       },
-      isDone: {
+      status: {
         type: Boolean,
         default: false,
       },

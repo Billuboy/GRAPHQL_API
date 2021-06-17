@@ -5,11 +5,10 @@ const {
 const bcrypt = require('bcryptjs');
 
 const User = require('../../models/user');
-const validation = require('../../validations/user');
+const validation = require('../../validations/user/user');
 const objectIdValidation = require('../../validations/objectId');
-const passwordValidate = require('../../validations/passwordValidate');
+const passwordValidate = require('../../validations/user/passwordValidate');
 const authMiddleware = require('../../middleware/auth');
-const { findOneAndUpdate } = require('../../models/user');
 
 module.exports = {
   //Queries

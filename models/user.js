@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const { secretKey } = require('../config/keys/keys');
+const { SECRET_KEY } = require('../config/keys/keys');
 
 const Schema = new mongoose.Schema({
   name: {
@@ -31,7 +31,7 @@ Schema.methods.getToken = function () {
       _id: this._id,
       name: this.name,
     },
-    secretKey,
+    SECRET_KEY,
     {
       expiresIn: 3600,
     }
@@ -45,7 +45,7 @@ Schema.methods.getRememberToken = function () {
       _id: this._id,
       name: this.name,
     },
-    secretKey
+    SECRET_KEY
   );
   return `Bearer ${token}`;
 };

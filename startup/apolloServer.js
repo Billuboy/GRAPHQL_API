@@ -10,6 +10,8 @@ module.exports = app => {
     typeDefs,
     resolvers,
     context: ({ req, res }) => buildContext({ req, res, User }),
+    introspection: true,
+    playground: true,
   });
 
   server.applyMiddleware({ app, cors: false });

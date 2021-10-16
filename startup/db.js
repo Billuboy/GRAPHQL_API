@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
-const { MONGODB_URI } = require('../config/keys/keys');
+require('dotenv').config();
 
 module.exports = function () {
   mongoose
-    .connect(MONGODB_URI, {
+    .connect(process.env.MONGODB_URI, {
       useFindAndModify: false,
       useNewUrlParser: true,
       useCreateIndex: true,
       useUnifiedTopology: true,
     })
-    .then(() => console.log('Connected to MongoDB'))
+    .then(() => console.log('Connected to MongoDB...'))
     .catch(err =>
       console.log('Some error occured while connecting to MongoDB')
     );

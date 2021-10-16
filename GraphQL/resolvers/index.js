@@ -1,6 +1,6 @@
 const authResolver = require('./user');
 const todoResolver = require('./todo');
-const remResolver = require('./remainder');
+const remResolver = require('./reminder');
 
 module.exports = {
   Query: {

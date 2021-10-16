@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const { SECRET_KEY } = require('../config/keys/keys');
+require('dotenv').config();
 
 const Schema = new mongoose.Schema({
   name: {
@@ -15,10 +15,6 @@ const Schema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
   date: {
     type: Date,
     default: Date.now,
@@ -28,24 +24,29 @@ const Schema = new mongoose.Schema({
 Schema.methods.getToken = function () {
   const token = jwt.sign(
     {
-      _id: this._id,
+      id: this._id,
       name: this.name,
     },
-    SECRET_KEY,
+    process.env.SECRET_KEY,
     {
+      algorithm: 'HS256',
       expiresIn: 3600,
     }
   );
+
   return `Bearer ${token}`;
 };
 
 Schema.methods.getRememberToken = function () {
   const token = jwt.sign(
     {
-      _id: this._id,
+      id: this._id,
       name: this.name,
     },
-    SECRET_KEY
+    process.env.SECRET_KEY,
+    {
+      algorithm: 'HS256',
+    }
   );
   return `Bearer ${token}`;
 };

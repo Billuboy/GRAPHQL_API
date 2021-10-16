@@ -59,6 +59,6 @@ const Schema = new mongoose.Schema({
   ],
 });
 
-const Remainders = mongoose.model('remainders', Schema);
+const Reminders = mongoose.model('reminders', Schema);
 
-module.exports = Remainders;
+module.exports = Reminders;

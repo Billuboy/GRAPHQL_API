@@ -1,30 +1,29 @@
-const {
-  UserInputError,
-  AuthenticationError,
-} = require('apollo-server-express');
+const { UserInputError } = require('apollo-server-express');
 const lodash = require('lodash');
 
 const Todo = require('../../models/todo');
 const validation = require('../../validations/todo/todo');
 const objectIdValidation = require('../../validations/objectId');
-const authMiddleware = require('../../middleware/auth');
 
 module.exports = {
   //Queries
   Query: {
     //@access   Private
     //@desc     resolver for getting all todos of a user
-    async getTodos(_, { username }, context) {
-      const userObject = await authMiddleware(context);
-      if (userObject.name !== username)
-        throw new AuthenticationError('Invalid token', {
-          errors: {
-            token: 'Invalid token used',
-          },
-        });
-      const response = await Todo.findOne({ user: userObject._id }).sort({
-        date: -1,
-      });
+    async getTodos(_, { id, status }) {
+      const user = await Todo.findOne({user: id});
+
+      if (!user) {
+        return {
+          user: id,
+          todos: [],
+        };
+      }
+
+      let response = {};
+      response.user = user.user;
+      response.todos = user.todos.filter(todo=>todo.status === status);
+
       return response;
     },
     //Query ends here
@@ -34,66 +33,46 @@ module.exports = {
   Mutation: {
     //@access   Private
     //@desc     resolver for creating a new todo
-    async createTodo(_, { task, username }, context) {
-      const userObject = await authMiddleware(context);
-      if (userObject.name !== username)
-        throw new AuthenticationError('Invalid token', {
-          errors: {
-            token: 'Invalid token used',
-          },
-        });
-
+    async createTodo(_, { id, task }) {
       const { errors, isValid } = validation({ task });
-      if (!isValid) throw new UserInputError('Wrong User Input', { errors });
-
-      const result = await Todo.findOne({ user: userObject._id });
-      if (!result) {
-        const newUser = new Todo({ user: userObject._id });
-        await newUser.save();
-      }
+      if (!isValid) return new UserInputError('Wrong User Input', { errors });
 
       const todos = {
         task,
       };
 
       const response = await Todo.findOneAndUpdate(
-        { user: userObject._id },
+        { user: id },
         {
           $push: {
             todos,
           },
         },
-        { new: true }
-      );
+        { new: true, upsert: true }
+      ).select({
+        todos: 1,
+        _id: 0,
+        user: 1,
+      });
 
       return response;
     },
 
     //@access   Private
     //@desc     resolver for completing a todo
-    async completeTodo(_, { todoId, username }, context) {
-      const userObject = await authMiddleware(context);
-      if (userObject.name !== username)
-        throw new AuthenticationError('Invalid token', {
-          errors: {
-            token: 'Invalid token used',
-          },
-        });
-
+    async completeTodo(_, { id, todoId }) {
       const { errors, isValid } = objectIdValidation(todoId);
-      if (!isValid) throw new UserInputError('Wrong Todo ID', { errors });
+      if (!isValid) return new UserInputError('Wrong Todo ID', { errors });
 
-      const user = await Todo.findOne({ user: userObject._id });
-      const todos = user.todos;
-      console.log(todos);
+      const user = await Todo.findOne({ user: id });
+      const { todos } = user;
       const index = lodash.findIndex(
         todos,
         todo => String(todo._id) === todoId
       );
-      console.log(index);
 
       if (index < 0)
-        throw new UserInputError('No todo found', {
+        return new UserInputError('No todo found', {
           errors: {
             todo: 'No todo found with given Todo ID',
           },
@@ -103,31 +82,24 @@ module.exports = {
       user.todos[index].status = !status;
 
       const response = await user.save();
+
       return response;
     },
 
     //@access   Private
     //@desc     resolver for deleting a particular todo
-    async deleteTodo(_, { todoId, username }, context) {
-      const userObject = await authMiddleware(context);
-      if (userObject.name !== username)
-        throw new AuthenticationError('Invalid token', {
-          errors: {
-            token: 'Invalid token used',
-          },
-        });
-
+    async deleteTodo(_, { id, todoId }) {
       const { errors, isValid } = objectIdValidation(todoId);
-      if (!isValid) throw new UserInputError('Wrong Todo ID', { errors });
+      if (!isValid) return new UserInputError('Wrong Todo ID', { errors });
 
-      const user = await Todo.findOne({ user: userObject._id });
+      const user = await Todo.findOne({ user: id });
       const index = lodash.findIndex(
         user.todos,
         todo => String(todo._id) === todoId
       );
 
       if (index < 0)
-        throw new UserInputError('No todo found', {
+        return new UserInputError('No todo found', {
           errors: {
             todo: 'No todo found with given Todo ID',
           },

@@ -1,26 +1,27 @@
-const { ApolloServer } = require('apollo-server-express');
-const { buildContext } = require('graphql-passport');
+const { ApolloServer, makeExecutableSchema } = require('apollo-server-express');
+const { applyMiddleware } = require('graphql-middleware');
 
 const typeDefs = require('../GraphQL/typeDefs');
 const resolvers = require('../GraphQL/resolvers');
-const User = require('../models/user');
+const permissions = require('./permissions');
 
 module.exports = app => {
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: ({ req, res }) => buildContext({ req, res, User }),
+    schema: applyMiddleware(schema, permissions),
+    context: ({ req }) => req.user || null,
     introspection: true,
     playground: true,
   });
 
-  server.applyMiddleware({ app, cors: false });
+  server.applyMiddleware({ app });
 
-  const PORT = process.env.PORT || 3001;
+  const port = process.env.PORT || 3001;
 
-  app.listen({ port: PORT }, () => {
+  app.listen({ port }, () => {
     console.log(
-      `Server ready at http://localhost:${PORT}${server.graphqlPath}`
+      `🚀 Server ready at http://localhost:${port}${server.graphqlPath}`
     );
   });
 };

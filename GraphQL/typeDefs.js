@@ -2,14 +2,14 @@ const { gql } = require('apollo-server-express');
 
 module.exports = gql`
   type User {
-    id: ID!
+    _id: ID!
     name: String!
     email: String!
     isVerified: Boolean!
   }
 
   type Todo {
-    id: ID!
+    _id: ID!
     task: String!
     status: Boolean!
     date: String!
@@ -20,19 +20,19 @@ module.exports = gql`
     todos: [Todo!]
   }
 
-  type Remainder {
-    id: ID!
+  type Reminder {
+    _id: ID!
     date: String!
     desc: String!
     title: String!
   }
 
-  type Remainders {
+  type Reminders {
     user: ID!
-    birthday: [Remainder!]
-    anniversary: [Remainder!]
-    events: [Remainder!]
-    custom: [Remainder!]
+    birthday: [Reminder!]
+    anniversary: [Reminder!]
+    events: [Reminder!]
+    custom: [Reminder!]
   }
 
   input RegisterInput {
@@ -42,33 +42,30 @@ module.exports = gql`
   }
 
   type Query {
-    getUser(userId: ID!): User!
-    verifyUser(email: String!, username: String!): User!
-    getTodos(username: String!): Todos!
-    getRemainders(username: String!): Remainders!
+    getUser(id: ID!): User!
+    getTodos(id: ID!, status: Boolean!): Todos!
+    getReminders(id: ID!): Reminders!
   }
 
   type Mutation {
     register(registerInput: RegisterInput): String!
     login(email: String!, password: String!, rememberMe: Boolean!): String!
-    changePassword(username: String!, password: String!): User!
-    resetPassword(userId: ID!, password: String!): User!
-    createTodo(task: String!, username: String!): Todos!
-    completeTodo(todoId: ID!, username: String!): Todos!
-    deleteTodo(todoId: ID!, username: String!): Todos!
+    changePassword(id: ID!, password: String!): User!
+    createTodo(id: ID!, task: String!): Todos!
+    completeTodo(id: ID!, todoId: ID!): Todos!
+    deleteTodo(id: ID!, todoId: ID!): Todos!
     createRem(
+      id: ID!
       date: String!
       desc: String!
-      username: String!
       remType: String!
-    ): Remainders!
+    ): Reminders!
     createCustomRem(
+      id: ID!
       date: String!
       desc: String!
       title: String!
-      username: String!
-      remType: String!
-    ): Remainders!
-    deleteRem(remId: String!, username: String!, remType: String!): Remainders!
+    ): Reminders!
+    deleteRem(id: ID!, remId: String!, remType: String!): Reminders!
   }
 `;
